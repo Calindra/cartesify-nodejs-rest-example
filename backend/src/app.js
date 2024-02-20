@@ -1,7 +1,8 @@
 console.log('starting app.js...')
 const { CartesifyBackend } = require("@calindra/cartesify-backend")
+const { createWallet } = require("@deroll/wallet")
+let dapp, wallet
 
-let dapp
 CartesifyBackend.createDapp().then(initDapp => {
     initDapp.start(() => {
         console.log('Dapp started');
@@ -10,6 +11,17 @@ CartesifyBackend.createDapp().then(initDapp => {
         process.exit(1);
     });
     dapp = initDapp
+
+    wallet = createWallet()
+    dapp.addAdvanceHandler(() => {
+        console.log('before wallet handler')
+        return "reject"
+    })
+    dapp.addAdvanceHandler(wallet.handler);
+    dapp.addAdvanceHandler(() => {
+        console.log('final handler')
+        return "reject"
+    })
 })
 
 const express = require("express")
@@ -23,9 +35,46 @@ let totalAmount = 0
 let games = []
 
 app.get("/health", (req, res) => {
-    req.header("x-msg_sender")
     res.send({ some: "response" });
 });
+
+app.get("/wallet/:address", (req, res) => {
+    console.log(`Checking balance ${req.params.address}`)
+    res.send({
+        balance: wallet.balanceOf(req.params.address).toString()
+    })
+})
+
+app.get("/token/:tokenId/owners", (req, res) => {
+    
+    res.send({ owners })
+})
+
+app.get("/wallet/:address/tokens", (req, res) => {
+    console.log(`Checking balance ${req.params.address}`)
+    res.send({...wallet.getAllTokens(req.params.address)})
+})
+
+app.get("/wallet/:address/erc-20/:token", (req, res) => {
+    console.log(`Checking balance ${req.params.address} ${req.params.token}`)
+    res.send({
+        balance: wallet.balanceOf(req.params.token, req.params.address).toString()
+    })
+})
+
+app.get("/wallet/:address/erc-721/:token/balance", (req, res) => {
+    console.log(`Checking balance ${req.params.address} ${req.params.token}`)
+    res.send({
+        balance: wallet.balanceOfERC721(req.params.token, req.params.address).toString()
+    })
+})
+
+app.get("/wallet/:address/erc-721/:token/tokenIds", (req, res) => {
+    console.log(`Checking balance ${req.params.address} ${req.params.token}`)
+    res.send({
+        balance: wallet.balanceOfERC721(req.params.token, req.params.address).toString()
+    })
+})
 
 app.post("/new-game", async (req, res) => {
     let player1 = req.header("x-msg_sender")
