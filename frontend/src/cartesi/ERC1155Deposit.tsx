@@ -23,7 +23,7 @@ export default function ERC1155Deposit({ getSigner, dappAddress }: ERC1155Deposi
         const portal = ERC1155SinglePortal__factory.connect(portalAddress, signer)
         const approve = await contract.setApprovalForAll(portalAddress, true)
         console.log('approve', approve)
-        const tx = await portal.depositSingleERC1155Token(erc1155address, dappAddress, tokenId, value, '0x')
+        const tx = await portal.depositSingleERC1155Token(erc1155address, dappAddress, tokenId, value, '0x', '0x')
         console.log('tx', tx)
     }
 
