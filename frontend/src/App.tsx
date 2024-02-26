@@ -59,7 +59,7 @@ function App() {
       <div className="card">
         <RestExample fetch={fetch} getSigner={getSigner} />
         <WalletRest fetch={fetch} getSigner={getSigner} />
-        <ERC1155Deposit dappAddress={DAPP_ADDRESS} getSigner={getSigner} />
+        <ERC1155Deposit fetch={fetch} dappAddress={DAPP_ADDRESS} getSigner={getSigner} />
       </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more

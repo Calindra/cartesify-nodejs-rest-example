@@ -45,6 +45,34 @@ app.get("/wallet/:address", (req, res) => {
     })
 })
 
+app.post("/wallet/:address/erc-1155/withdraw", async (req, res) => {
+    const voucher = wallet.withdrawERC1155(
+        req.body.token,
+        req.body.address,
+
+        // deepcode ignore HTTPSourceWithUncheckedType: doing the type validation
+        req.body.tokenIds.map(id => {
+            if (typeof id !== 'number') {
+                throw new Error('BadRequest')
+            }
+            return BigInt(id)
+        }),
+
+        // deepcode ignore HTTPSourceWithUncheckedType: doing the type validation
+        req.body.values.map(value => {
+            if (typeof value !== 'number') {
+                throw new Error('BadRequest')
+            }
+            return BigInt(value)
+        }),
+    )
+
+    const voucherResult = await dapp.createVoucher(voucher)
+    res.send({
+        ok: 1, voucherResult
+    })
+})
+
 app.get("/token/:tokenId/owners", (req, res) => {
     
     res.send({ owners })
