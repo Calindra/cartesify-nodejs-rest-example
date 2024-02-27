@@ -6,6 +6,7 @@ import { BrowserProvider } from 'ethers';
 import ERC1155Deposit from './cartesi/ERC1155Deposit';
 import { RestExample } from './cartesi/RestExample';
 import { WalletRest } from './cartesi/WalletRest';
+import VoucherView from './cartesi/VoucherView';
 
 type EthereumFromWindow = import("ethers").Eip1193Provider & import("ethers").AbstractProvider;
 declare global {
@@ -16,7 +17,9 @@ declare global {
   }
 }
 
+// you could check this address by executing `sunodo address-book`
 const DAPP_ADDRESS = '0x70ac08179605AF2D9e75782b8DEcDD3c22aA4D0C'
+
 // replace with the content of your dapp address (it could be found on dapp.json)
 const fetch = Cartesify.createFetch({
   dappAddress: DAPP_ADDRESS,
@@ -58,8 +61,9 @@ function App() {
       <h1>Vite + React</h1>
       <div className="card">
         <RestExample fetch={fetch} getSigner={getSigner} />
-        <WalletRest fetch={fetch} getSigner={getSigner} />
+        <WalletRest fetch={fetch} dappAddress={DAPP_ADDRESS} getSigner={getSigner} />
         <ERC1155Deposit fetch={fetch} dappAddress={DAPP_ADDRESS} getSigner={getSigner} />
+        <VoucherView fetch={fetch} dappAddress={DAPP_ADDRESS} getSigner={getSigner} />
       </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more

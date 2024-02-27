@@ -45,6 +45,18 @@ app.get("/wallet/:address", (req, res) => {
     })
 })
 
+app.post("/wallet/:address/erc-20/withdraw", async (req, res) => {
+    const voucher = wallet.withdrawERC20(
+        req.body.token,
+        req.body.address,
+        BigInt(req.body.amount)
+    )
+    const voucherResult = await dapp.createVoucher(voucher)
+    res.send({
+        ok: 1, voucherResult, inputIndex: req.get('x-input_index') 
+    })
+})
+
 app.post("/wallet/:address/erc-1155/withdraw", async (req, res) => {
     const voucher = wallet.withdrawERC1155(
         req.body.token,
@@ -74,13 +86,13 @@ app.post("/wallet/:address/erc-1155/withdraw", async (req, res) => {
 })
 
 app.get("/token/:tokenId/owners", (req, res) => {
-    
+
     res.send({ owners })
 })
 
 app.get("/wallet/:address/tokens", (req, res) => {
     console.log(`Checking balance ${req.params.address}`)
-    res.send({...wallet.getAllTokens(req.params.address)})
+    res.send({ ...wallet.getAllTokens(req.params.address) })
 })
 
 app.get("/wallet/:address/erc-20/:token", (req, res) => {
