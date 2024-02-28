@@ -1,9 +1,21 @@
 # syntax=docker.io/docker/dockerfile:1
-FROM node:20.8.0-bookworm as build-stage
+# FROM node:20.8.0-bookworm as build-stage
+FROM --platform=linux/riscv64 cartesi/node:20.8.0-jammy-slim as build-stage
+
+RUN <<EOF
+set -e
+apt-get update
+apt-get install -y --no-install-recommends python3 libsqlite3-dev build-essential 
+EOF
 
 WORKDIR /opt/cartesi/dapp
 COPY . .
+
+# we need python3 libsqlite3-dev build-essential to recompile the sqlite3
+RUN npm uninstall sqlite3 && npm install --build-from-source sqlite3
+
 RUN npm ci
+
 # runtime stage: produces final image that will be executed
 
 # Here the image's platform MUST be linux/riscv64.

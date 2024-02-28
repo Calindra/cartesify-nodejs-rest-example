@@ -3,6 +3,24 @@ const { CartesifyBackend } = require("@calindra/cartesify-backend")
 const { createWallet } = require("@deroll/wallet")
 let dapp, wallet
 
+const sqlite3 = require('sqlite3').verbose();
+const db = new sqlite3.Database('./test.db');
+
+db.serialize(() => {
+  db.run("CREATE TABLE users (name TEXT, age INTEGER)");
+
+  const stmt = db.prepare("INSERT INTO users VALUES (?, ?)");
+  stmt.run("Alice", 25);
+  stmt.run("Bob", 30);
+  stmt.finalize();
+
+  db.each("SELECT name, age FROM users", (err, row) => {
+    console.log(row.name + " is " + row.age + " years old");
+  });
+});
+
+db.close();
+
 CartesifyBackend.createDapp().then(initDapp => {
     initDapp.start(() => {
         console.log('Dapp started');
