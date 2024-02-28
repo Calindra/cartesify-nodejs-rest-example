@@ -57,6 +57,18 @@ app.post("/wallet/:address/erc-20/withdraw", async (req, res) => {
     })
 })
 
+app.post("/wallet/:address/erc-721/withdraw", async (req, res) => {
+    const voucher = wallet.withdrawERC721(
+        req.body.token,
+        req.body.address,
+        BigInt(req.body.tokenId)
+    )
+    const voucherResult = await dapp.createVoucher(voucher)
+    res.send({
+        ok: 1, voucherResult, inputIndex: req.get('x-input_index') 
+    })
+})
+
 app.post("/wallet/:address/erc-1155/withdraw", async (req, res) => {
     const voucher = wallet.withdrawERC1155(
         req.body.token,
@@ -90,9 +102,22 @@ app.get("/token/:tokenId/owners", (req, res) => {
     res.send({ owners })
 })
 
-app.get("/wallet/:address/tokens", (req, res) => {
+app.get("/wallet/:address/tokens", async (req, res) => {
     console.log(`Checking balance ${req.params.address}`)
-    res.send({ ...wallet.getAllTokens(req.params.address) })
+    const userWallet = await wallet.getWalletOrNew(req.params.address)
+    const json = JSON.stringify(userWallet, (_key, value) => {
+        if (typeof value === 'bigint') {
+            return value.toString()
+        } else if (typeof value === 'object' && value instanceof Map) {
+            return Object.fromEntries(value)
+        } else if (typeof value === 'object' && value instanceof Set) {
+            return [...value]
+        } else {
+            return value
+        }
+    })
+    res.setHeader('Content-Type', 'application/json; charset=utf-8')
+    res.send(json)
 })
 
 app.get("/wallet/:address/erc-20/:token", (req, res) => {

@@ -76,7 +76,9 @@ export default function VoucherView({ getSigner, dappAddress }: VoucherViewProps
                     </div>
                 )
             })}
-
+            <h3>Epoch</h3>
+            Advance the epoch by running this command:
+            <pre>ETH_RPC_URL=http://localhost:8545 cast rpc evm_increaseTime 2592000</pre>
             <button onClick={callDAppAddressRelay}>Inform DApp Address</button>
         </div>
     )
