@@ -53,8 +53,53 @@ app.post("/wallet/:address/erc-20/withdraw", async (req, res) => {
     )
     const voucherResult = await dapp.createVoucher(voucher)
     res.send({
-        ok: 1, voucherResult, inputIndex: req.get('x-input_index') 
+        ok: 1, voucherResult, inputIndex: req.get('x-input_index')
     })
+})
+
+app.post("/wallet/erc-20/transfer", async (req, res) => {
+    await wallet.transferERC20(
+        req.body.token,
+        req.get('x-msg_sender'),
+        req.body.to,
+        BigInt(req.body.amount),
+    )
+    res.send({ ok: 1 })
+})
+
+app.post("/wallet/erc-721/transfer", async (req, res) => {
+    await wallet.transferERC721(
+        req.body.token,
+        req.get('x-msg_sender'),
+        req.body.to,
+        BigInt(req.body.tokenId),
+    )
+    res.send({ ok: 1 })
+})
+
+app.post("/wallet/erc-1155/transfer", async (req, res) => {
+    await wallet.transferERC1155(
+        req.body.token,
+        req.get('x-msg_sender'),
+        req.body.to,
+
+        // deepcode ignore HTTPSourceWithUncheckedType: doing the type validation
+        req.body.tokenIds.map(id => {
+            if (typeof id !== 'number') {
+                throw new Error(`BadRequest id ${value} is not a number`)
+            }
+            return BigInt(id)
+        }),
+
+        // deepcode ignore HTTPSourceWithUncheckedType: doing the type validation
+        req.body.values.map(value => {
+            if (typeof value !== 'number') {
+                throw new Error(`BadRequest value ${value} is not a number`)
+            }
+            return BigInt(value)
+        }),
+    )
+    res.send({ ok: 1 })
 })
 
 app.post("/wallet/:address/erc-721/withdraw", async (req, res) => {
@@ -65,7 +110,7 @@ app.post("/wallet/:address/erc-721/withdraw", async (req, res) => {
     )
     const voucherResult = await dapp.createVoucher(voucher)
     res.send({
-        ok: 1, voucherResult, inputIndex: req.get('x-input_index') 
+        ok: 1, voucherResult, inputIndex: req.get('x-input_index')
     })
 })
 

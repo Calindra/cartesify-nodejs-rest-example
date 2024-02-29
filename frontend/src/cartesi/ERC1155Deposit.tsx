@@ -10,6 +10,7 @@ type ERC1155DepositProps = {
 }
 
 export default function ERC1155Deposit({ getSigner, dappAddress, fetch }: ERC1155DepositProps) {
+    const [toAddress, setToAddress] = useState('0x70997970C51812dc3A010C7d01b50e0d17dc79C8')
     const [erc1155address, _setErc1155Address] = useState(localStorage.getItem(`erc1155address`) ?? '0x3Aa5ebB10DC797CAC828524e59A333d0A371443c')
     const [tokenId, setTokenId] = useState('1')
     const [value, setValue] = useState(1)
@@ -31,7 +32,8 @@ export default function ERC1155Deposit({ getSigner, dappAddress, fetch }: ERC115
         const approve = await contract.setApprovalForAll(portalAddress, true)
         console.log('approve', approve)
         const tx = await portal.depositSingleERC1155Token(erc1155address, dappAddress, tokenId, value, '0x', '0x')
-        console.log('tx', tx)
+        await (tx as any).wait()
+        console.log('Success!')
     }
 
     async function batchDeposit() {
@@ -45,7 +47,31 @@ export default function ERC1155Deposit({ getSigner, dappAddress, fetch }: ERC115
 
         const portal = ERC1155BatchPortal__factory.connect(portalAddress, signer)
         const tx = await portal.depositBatchERC1155Token(erc1155address, dappAddress, batch.map(b => BigInt(b.tokenId)), batch.map(b => BigInt(b.value)), '0x', '0x')
-        console.log('tx', tx)
+        await (tx as any).wait()
+        console.log('Success!')
+    }
+
+    async function transferErc1155() {
+        const signer = await getSigner()
+        const res = await fetch(`http://127.0.0.1:8383/wallet/erc-1155/transfer`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                token: erc1155address,
+                to: toAddress,
+                tokenIds: batch.map(item => +item.tokenId),
+                values: batch.map(item => item.value)
+            }),
+            signer,
+        })
+        if (!res.ok) {
+            console.log(res.status, res.text())
+            return
+        }
+        const json = await res.json()
+        console.log(json)
     }
 
     async function batchWithdraw() {
@@ -134,7 +160,11 @@ export default function ERC1155Deposit({ getSigner, dappAddress, fetch }: ERC115
                 )
             })}
             <button onClick={batchDeposit}>Deposit</button>{" "}
-            <button onClick={batchWithdraw}>Voucher Withdraw</button>
+            <button onClick={batchWithdraw}>Voucher Withdraw</button><br />
+            <input value={toAddress} onChange={(e) => {
+                setToAddress(e.target.value)
+            }} />
+            <button onClick={transferErc1155}>Transfer</button>
         </div>
     )
 }

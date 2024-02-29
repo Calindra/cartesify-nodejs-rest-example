@@ -13,6 +13,7 @@ export function WalletRest({ getSigner, fetch, dappAddress }: WalletRestProps) {
     const [backendResponse, setBackendResponse] = useState('')
     const [backendWalletResponse, setBackendWalletResponse] = useState('')
     const [erc20address, setErc20Address] = useState(localStorage.getItem('erc20address') ?? '0xc6e7DF5E7b4f2A278906862b61205850344D4e7d')
+    const [toAddress, setToAddress] = useState('0x70997970C51812dc3A010C7d01b50e0d17dc79C8')
     const [erc20value, setErc20value] = useState('0')
     const [erc20balanceL1, setErc20balanceL1] = useState('0')
     const [erc20balanceL2, setErc20balanceL2] = useState('0')
@@ -43,6 +44,50 @@ export function WalletRest({ getSigner, fetch, dappAddress }: WalletRestProps) {
         const contract = IERC721__factory.connect(erc721address, signer)
         const balance = await contract.balanceOf(await signer.getAddress())
         setErc721balanceL1(balance.toString())
+    }
+
+    async function transferErc20() {
+        const signer = await getSigner()
+        const res = await fetch(`http://127.0.0.1:8383/wallet/erc-20/transfer`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                token: erc20address,
+                to: toAddress,
+                amount: +erc20value
+            }),
+            signer,
+        })
+        if (!res.ok) {
+            console.log(res.status, res.text())
+            return
+        }
+        const json = await res.json()
+        setBackendResponse(JSON.stringify(json, null, 4))
+    }
+
+    async function transferErc721() {
+        const signer = await getSigner()
+        const res = await fetch(`http://127.0.0.1:8383/wallet/erc-721/transfer`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                token: erc721address,
+                to: toAddress,
+                tokenId: +erc721id
+            }),
+            signer,
+        })
+        if (!res.ok) {
+            console.log(res.status, res.text())
+            return
+        }
+        const json = await res.json()
+        setBackendResponse(JSON.stringify(json, null, 4))
     }
 
     async function withdrawErc20() {
@@ -148,14 +193,20 @@ export function WalletRest({ getSigner, fetch, dappAddress }: WalletRestProps) {
                 const json = await res.json()
                 setErc20balanceL2(json.balance)
                 setBackendResponse(JSON.stringify(json, null, 4))
+                loadErc20balance()
             }}>GET Balance</button><br />
             <input value={erc20value} onChange={(e) => {
                 setErc20value(e.target.value)
             }} />
             <button onClick={depositErc20}>Deposit</button>
             <button onClick={withdrawErc20}>Withdraw</button><br />
+            <input value={toAddress} onChange={(e) => {
+                setToAddress(e.target.value)
+            }} />
+            <button onClick={transferErc20}>Transfer</button><br />
             L1 Balance: {erc20balanceL1}<br />
             L2 Balance: {erc20balanceL2}<br />
+            
 
             <h3>ERC-721</h3>
             <input value={erc721address} onChange={(e) => {
@@ -169,12 +220,18 @@ export function WalletRest({ getSigner, fetch, dappAddress }: WalletRestProps) {
                 const json = await res.json()
                 setErc721balanceL2(json.balance)
                 setBackendResponse(JSON.stringify(json, null, 4))
+                loadErc1155balance()
             }}>GET Balance</button><br />
             <input value={erc721id} onChange={(e) => {
                 setErc721id(e.target.value)
             }} />
             <button onClick={depositErc721}>Deposit</button>
             <button onClick={withdrawErc721}>Withdraw</button><br />
+            <input value={toAddress} onChange={(e) => {
+                setToAddress(e.target.value)
+            }} />
+            <button onClick={transferErc721}>Transfer</button>
+            <br />
             L1 Balance: {erc721balanceL1}<br />
             L2 Balance: {erc721balanceL2}<br />
             <div style={{ textAlign: 'left', paddingTop: '20px' }}>
