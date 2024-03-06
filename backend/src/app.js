@@ -38,17 +38,48 @@ app.get("/health", (req, res) => {
     res.send({ some: "response" });
 });
 
-app.get("/wallet/:address", (req, res) => {
+app.get("/wallet/:address", async (req, res) => {
     console.log(`Checking balance ${req.params.address}`)
+    const userWallet = await wallet.getWalletOrNew(req.params.address)
+    const json = JSON.stringify(userWallet, (_key, value) => {
+        if (typeof value === 'bigint') {
+            return value.toString()
+        } else if (typeof value === 'object' && value instanceof Map) {
+            return Object.fromEntries(value)
+        } else if (typeof value === 'object' && value instanceof Set) {
+            return [...value]
+        } else {
+            return value
+        }
+    })
+    res.setHeader('Content-Type', 'application/json; charset=utf-8')
+    res.send(json)
+})
+
+app.post("/wallet/ether/transfer", async (req, res) => {
+    await wallet.transferEther(
+        req.get('x-msg_sender'),
+        req.body.to,
+        BigInt(req.body.amount),
+    )
+    res.send({ ok: 1 })
+})
+
+app.post("/wallet/ether/withdraw", async (req, res) => {
+    const voucher = wallet.withdrawEther(
+        req.get('x-msg_sender'),
+        BigInt(req.body.amount)
+    )
+    const voucherResult = await dapp.createVoucher(voucher)
     res.send({
-        balance: wallet.balanceOf(req.params.address).toString()
+        ok: 1, voucherResult, inputIndex: req.get('x-input_index')
     })
 })
 
-app.post("/wallet/:address/erc-20/withdraw", async (req, res) => {
+app.post("/wallet/erc-20/withdraw", async (req, res) => {
     const voucher = wallet.withdrawERC20(
         req.body.token,
-        req.body.address,
+        req.get('x-msg_sender'),
         BigInt(req.body.amount)
     )
     const voucherResult = await dapp.createVoucher(voucher)
@@ -78,34 +109,39 @@ app.post("/wallet/erc-721/transfer", async (req, res) => {
 })
 
 app.post("/wallet/erc-1155/transfer", async (req, res) => {
-    await wallet.transferERC1155(
-        req.body.token,
-        req.get('x-msg_sender'),
-        req.body.to,
+    try {
+        await wallet.transferERC1155(
+            req.body.token,
+            req.get('x-msg_sender'),
+            req.body.to,
 
-        // deepcode ignore HTTPSourceWithUncheckedType: doing the type validation
-        req.body.tokenIds.map(id => {
-            if (typeof id !== 'number') {
-                throw new Error(`BadRequest id ${value} is not a number`)
-            }
-            return BigInt(id)
-        }),
+            // deepcode ignore HTTPSourceWithUncheckedType: doing the type validation
+            req.body.tokenIds.map(id => {
+                if (typeof id !== 'number') {
+                    throw new Error(`BadRequest id ${value} is not a number`)
+                }
+                return BigInt(id)
+            }),
 
-        // deepcode ignore HTTPSourceWithUncheckedType: doing the type validation
-        req.body.values.map(value => {
-            if (typeof value !== 'number') {
-                throw new Error(`BadRequest value ${value} is not a number`)
-            }
-            return BigInt(value)
-        }),
-    )
-    res.send({ ok: 1 })
+            // deepcode ignore HTTPSourceWithUncheckedType: doing the type validation
+            req.body.values.map(value => {
+                if (typeof value !== 'number') {
+                    throw new Error(`BadRequest value ${value} is not a number`)
+                }
+                return BigInt(value)
+            }),
+        )
+        res.send({ ok: 1 })
+    } catch (e) {
+        // Here, we need to detect the type of error to send the appropriate status.
+        res.status(400).send({ message: e.message })
+    }
 })
 
-app.post("/wallet/:address/erc-721/withdraw", async (req, res) => {
+app.post("/wallet/erc-721/withdraw", async (req, res) => {
     const voucher = wallet.withdrawERC721(
         req.body.token,
-        req.body.address,
+        req.get('x-msg_sender'),
         BigInt(req.body.tokenId)
     )
     const voucherResult = await dapp.createVoucher(voucher)
@@ -114,10 +150,10 @@ app.post("/wallet/:address/erc-721/withdraw", async (req, res) => {
     })
 })
 
-app.post("/wallet/:address/erc-1155/withdraw", async (req, res) => {
+app.post("/wallet/erc-1155/withdraw", async (req, res) => {
     const voucher = wallet.withdrawERC1155(
         req.body.token,
-        req.body.address,
+        req.get('x-msg_sender'),
 
         // deepcode ignore HTTPSourceWithUncheckedType: doing the type validation
         req.body.tokenIds.map(id => {
@@ -138,31 +174,13 @@ app.post("/wallet/:address/erc-1155/withdraw", async (req, res) => {
 
     const voucherResult = await dapp.createVoucher(voucher)
     res.send({
-        ok: 1, voucherResult
+        ok: 1, voucherResult, inputIndex: req.get('x-input_index')
     })
 })
 
 app.get("/token/:tokenId/owners", (req, res) => {
 
     res.send({ owners })
-})
-
-app.get("/wallet/:address/tokens", async (req, res) => {
-    console.log(`Checking balance ${req.params.address}`)
-    const userWallet = await wallet.getWalletOrNew(req.params.address)
-    const json = JSON.stringify(userWallet, (_key, value) => {
-        if (typeof value === 'bigint') {
-            return value.toString()
-        } else if (typeof value === 'object' && value instanceof Map) {
-            return Object.fromEntries(value)
-        } else if (typeof value === 'object' && value instanceof Set) {
-            return [...value]
-        } else {
-            return value
-        }
-    })
-    res.setHeader('Content-Type', 'application/json; charset=utf-8')
-    res.send(json)
 })
 
 app.get("/wallet/:address/erc-20/:token", (req, res) => {

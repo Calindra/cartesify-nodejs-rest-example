@@ -16,7 +16,7 @@ export default function ERC1155Deposit({ getSigner, dappAddress, fetch }: ERC115
     const [value, setValue] = useState(1)
 
     const [batchSize, setBatchSize] = useState(2)
-    const [batch, setBatch] = useState<{ tokenId: string, value: number, balance?: number }[]>([])
+    const [batch, setBatch] = useState<{ tokenId: string, value: number, balance?: number, balanceL2?: number }[]>([])
 
     function setErc1155Address(address: string) {
         _setErc1155Address(address)
@@ -140,7 +140,19 @@ export default function ERC1155Deposit({ getSigner, dappAddress, fetch }: ERC115
             Value: <input value={value} onChange={(e) => setValue(+e.target.value)} /><br />
             <button onClick={singleDeposit}>Deposit</button>
             <h3>Batch Deposit</h3>
-            Token address: <input value={erc1155address} onChange={(e) => setErc1155Address(e.target.value)} /><br />
+            Token address: <input value={erc1155address} onChange={(e) => setErc1155Address(e.target.value)} />
+            <button onClick={async () => {
+                const signer = await getSigner()
+                const res = await fetch(`http://127.0.0.1:8383/wallet/${await signer.getAddress()}/tokens`)
+                const wallet = await res.json()
+                const erc1155tokens = wallet.erc1155[erc1155address]
+                batch.forEach(item => {
+                    item.balanceL2 = erc1155tokens[`${item.tokenId}`]
+                })
+                // setErc20balanceL2(json.balance)
+                // console.log(json)
+                loadBalances([...batch])
+            }}>GET Balance</button><br />
             Batch size: <input value={batchSize} type="number" onChange={(e) => {
                 updateBatchSize(+e.target.value)
             }} /><br />
@@ -156,6 +168,7 @@ export default function ERC1155Deposit({ getSigner, dappAddress, fetch }: ERC115
                             setBatch([...batch])
                         }} /><br />
                         L1 Balance: {batch[i].balance ?? "0"}<br />
+                        L2 Balance: {batch[i].balanceL2 ?? "0"}<br />
                     </div>
                 )
             })}
@@ -164,7 +177,7 @@ export default function ERC1155Deposit({ getSigner, dappAddress, fetch }: ERC115
             <input value={toAddress} onChange={(e) => {
                 setToAddress(e.target.value)
             }} />
-            <button onClick={transferErc1155}>Transfer</button>
+            <button onClick={transferErc1155}>L2 Transfer</button>
         </div>
     )
 }

@@ -10,7 +10,7 @@ type RestExampleProps = {
 export function RestExample({ getSigner, fetch }: RestExampleProps) {
     const [backendResponse, setBackendResponse] = useState('')
     return (
-        <div>
+        <div style={{ textAlign: 'left' }}>
             <h2>REST Example</h2>
             <button onClick={async () => {
                 const res = await fetch('http://127.0.0.1:8383/health')
