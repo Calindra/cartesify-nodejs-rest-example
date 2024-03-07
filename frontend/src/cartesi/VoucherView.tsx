@@ -1,5 +1,5 @@
 import { FetchFun } from "@calindra/cartesify/src/cartesify/FetchLikeClient"
-import { CartesiDApp__factory, DAppAddressRelay__factory } from "@cartesi/rollups"
+import { CartesiDApp__factory } from "@cartesi/rollups"
 import { Signer } from "ethers"
 import { useEffect, useState } from "react"
 import { Voucher } from "./model/Voucher"
@@ -12,16 +12,17 @@ type VoucherViewProps = {
 }
 
 export default function VoucherView({ getSigner, dappAddress }: VoucherViewProps) {
-    const [vouchers, setVouchers] = useState<Voucher[]>([])
+    const [vouchers, setVouchers] = useState<Voucher[] | undefined>()
 
-    async function init() {
+    async function loadVouchers() {
+        setVouchers(undefined)
         const res = await VoucherService.findAll()
         const vouchers = res.data.vouchers.edges.map((e: any) => e.node)
         setVouchers(vouchers)
     }
 
     useEffect(() => {
-        init()
+        loadVouchers()
     }, [])
 
     /*
@@ -58,28 +59,27 @@ export default function VoucherView({ getSigner, dappAddress }: VoucherViewProps
         }
     }
 
-    async function callDAppAddressRelay() {
-        const signer = await getSigner()
-        const relay = DAppAddressRelay__factory.connect('0xF5DE34d6BbC0446E2a45719E718efEbaaE179daE', signer)
-        const tx = await relay.relayDAppAddress(dappAddress)
-        const res = await (tx as any).wait()
-        console.log('Executed!', res)
-    }
-
     return (
         <div style={{ textAlign: 'left' }}>
             <h2>Vouchers</h2>
-            {vouchers.map((voucher, i) => {
-                return (
-                    <div key={`${i}`}>
-                        <VoucherERC1155 voucher={voucher} executeVoucher={executeVoucher} />
+            <p>The voucher needs the epoch to end before it is ready to be executed.</p>
+            <button onClick={loadVouchers}>Load Vouchers</button>
+            <div style={{ paddingTop: '10px' }}>
+                {!!vouchers ? (
+                    <div>
+                        <div>{vouchers.length} vouchers</div>
+                        {vouchers.map((voucher, i) => {
+                            return (
+                                <div key={`${i}`}>
+                                    <VoucherERC1155 voucher={voucher} executeVoucher={executeVoucher} />
+                                </div>
+                            )
+                        })}
                     </div>
-                )
-            })}
-            <h3>Epoch</h3>
-            Advance the epoch by running this command:
-            <pre>ETH_RPC_URL=http://localhost:8545 cast rpc evm_increaseTime 2592000</pre>
-            <button onClick={callDAppAddressRelay}>Inform DApp Address</button>
+                ) : (
+                    <div>...</div>
+                )}
+            </div>
         </div>
     )
 }

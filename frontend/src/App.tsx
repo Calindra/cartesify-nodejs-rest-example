@@ -7,6 +7,7 @@ import ERC1155Deposit from './cartesi/ERC1155Deposit';
 import { RestExample } from './cartesi/RestExample';
 import { WalletRest } from './cartesi/WalletRest';
 import VoucherView from './cartesi/VoucherView';
+import { Epoch } from './cartesi/Epoch';
 
 type EthereumFromWindow = import("ethers").Eip1193Provider & import("ethers").AbstractProvider;
 declare global {
@@ -59,6 +60,7 @@ function App() {
         <WalletRest fetch={fetch} dappAddress={DAPP_ADDRESS} getSigner={getSigner} />
         <ERC1155Deposit fetch={fetch} dappAddress={DAPP_ADDRESS} getSigner={getSigner} />
         <VoucherView fetch={fetch} dappAddress={DAPP_ADDRESS} getSigner={getSigner} />
+        <Epoch />
       </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more

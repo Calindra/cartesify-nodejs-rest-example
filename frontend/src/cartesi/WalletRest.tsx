@@ -1,5 +1,5 @@
 import { FetchFun } from "@calindra/cartesify/src/cartesify/FetchLikeClient"
-import { ERC20Portal__factory, ERC721Portal__factory, EtherPortal__factory, IERC20__factory, IERC721__factory } from "@cartesi/rollups"
+import { DAppAddressRelay__factory, ERC20Portal__factory, ERC721Portal__factory, EtherPortal__factory, IERC20__factory, IERC721__factory } from "@cartesi/rollups"
 import { JsonRpcSigner } from "ethers"
 import { useEffect, useState } from "react"
 
@@ -7,30 +7,6 @@ type WalletRestProps = {
     fetch: FetchFun
     getSigner: () => Promise<JsonRpcSigner>
     dappAddress: string
-}
-
-async function sendRPCCommand(method: string, params: any[]) {
-    const rpcUrl = 'http://localhost:8545'; // Replace this with your JSON-RPC endpoint URL
-    const data = {
-        jsonrpc: '2.0',
-        method: method,
-        params: params,
-        id: 1 // You can use any value for the ID
-    };
-
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    };
-
-    try {
-        const response = await fetch(rpcUrl, requestOptions);
-        const responseData = await response.json();
-        console.log(responseData);
-    } catch (error) {
-        console.error(error)
-    }
 }
 
 export function WalletRest({ getSigner, fetch, dappAddress }: WalletRestProps) {
@@ -228,7 +204,7 @@ export function WalletRest({ getSigner, fetch, dappAddress }: WalletRestProps) {
         console.log('approved')
         const portal = ERC20Portal__factory.connect(portalAddress, signer)
         console.log({ erc20address, dappAddress, erc20value })
-        const tx = await portal.depositERC20Tokens(erc20address, dappAddress, +erc20value, '0x')
+        const tx = await portal.depositERC20Tokens(erc20address, dappAddress, erc20value, '0x')
         await (tx as any).wait()
         console.log('Success!')
     }
@@ -253,13 +229,22 @@ export function WalletRest({ getSigner, fetch, dappAddress }: WalletRestProps) {
         console.log('Success!')
     }
 
+    async function callDAppAddressRelay() {
+        const signer = await getSigner()
+        const relay = DAppAddressRelay__factory.connect('0xF5DE34d6BbC0446E2a45719E718efEbaaE179daE', signer)
+        const tx = await relay.relayDAppAddress(dappAddress)
+        const res = await (tx as any).wait()
+        console.log('Executed!', res)
+    }
+
     return (
         <div style={{ textAlign: 'left' }}>
             <h2>Wallet + REST</h2>
-            <button onClick={() => {
-                sendRPCCommand('evm_increaseTime', [5184000]);
-            }}>Increase Time</button>
-            <pre>http://127.0.0.1:8383/wallet/:address</pre>
+            <p>Some wallet operations require you to first provide the dappAddress.</p>
+            <button onClick={callDAppAddressRelay}>Inform DApp Address</button>
+
+            <h3>JSON Wallet</h3>
+            <pre>GET http://127.0.0.1:8383/wallet/:address</pre>
             <button onClick={async () => {
                 const signer = await getSigner()
                 const res = await fetch(`http://127.0.0.1:8383/wallet/${signer?.address}`)
@@ -283,7 +268,7 @@ export function WalletRest({ getSigner, fetch, dappAddress }: WalletRestProps) {
                 setEtherValue(e.target.value)
             }} />
             <button onClick={depositEther}>Deposit</button>
-            <button onClick={withdrawEther}>Withdraw</button><br />
+            <button onClick={withdrawEther}>Voucher Withdraw</button><br />
             <input value={toAddress} onChange={(e) => {
                 setToAddress(e.target.value)
             }} />
@@ -300,9 +285,9 @@ export function WalletRest({ getSigner, fetch, dappAddress }: WalletRestProps) {
             }} />
             <button onClick={async () => {
                 const signer = await getSigner()
-                const res = await fetch(`http://127.0.0.1:8383/wallet/${signer?.address.toLowerCase()}/erc-20/${erc20address.toLowerCase()}`)
+                const res = await fetch(`http://127.0.0.1:8383/wallet/${signer?.address.toLowerCase()}`)
                 const json = await res.json()
-                setErc20balanceL2(json.balance)
+                setErc20balanceL2(json.erc20[erc20address] ?? '0')
                 setBackendResponse(JSON.stringify(json, null, 4))
                 loadErc20balance()
             }}>GET Balance</button><br />
@@ -310,14 +295,13 @@ export function WalletRest({ getSigner, fetch, dappAddress }: WalletRestProps) {
                 setErc20value(e.target.value)
             }} />
             <button onClick={depositErc20}>Deposit</button>
-            <button onClick={withdrawErc20}>Withdraw</button><br />
+            <button onClick={withdrawErc20}>Voucher Withdraw</button><br />
             <input value={toAddress} onChange={(e) => {
                 setToAddress(e.target.value)
             }} />
             <button onClick={transferErc20}>L2 Transfer</button><br />
             L1 Balance: {erc20balanceL1}<br />
             L2 Balance: {erc20balanceL2}<br />
-
 
             <h3>ERC-721</h3>
             <input value={erc721address} onChange={(e) => {
@@ -326,10 +310,10 @@ export function WalletRest({ getSigner, fetch, dappAddress }: WalletRestProps) {
             }} />
             <button onClick={async () => {
                 const signer = await getSigner()
-                const url = `http://127.0.0.1:8383/wallet/${signer?.address.toLowerCase()}/erc-721/${erc721address.toLowerCase()}/balance`
+                const url = `http://127.0.0.1:8383/wallet/${signer?.address.toLowerCase()}`
                 const res = await fetch(url)
                 const json = await res.json()
-                setErc721balanceL2(json.balance)
+                setErc721balanceL2(json.erc721[erc721address]?.length ?? '0')
                 setBackendResponse(JSON.stringify(json, null, 4))
                 loadErc1155balance()
             }}>GET Balance</button><br />
@@ -337,7 +321,7 @@ export function WalletRest({ getSigner, fetch, dappAddress }: WalletRestProps) {
                 setErc721id(e.target.value)
             }} />
             <button onClick={depositErc721}>Deposit</button>
-            <button onClick={withdrawErc721}>Withdraw</button><br />
+            <button onClick={withdrawErc721}>Voucher Withdraw</button><br />
             <input value={toAddress} onChange={(e) => {
                 setToAddress(e.target.value)
             }} />

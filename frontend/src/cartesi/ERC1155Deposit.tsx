@@ -77,7 +77,7 @@ export default function ERC1155Deposit({ getSigner, dappAddress, fetch }: ERC115
     async function batchWithdraw() {
         const signer = await getSigner()
         const signerAddress = await signer.getAddress()
-        const res = await fetch(`http://127.0.0.1:8383/wallet/${signerAddress}/erc-1155/withdraw`, {
+        const res = await fetch(`http://127.0.0.1:8383/wallet/erc-1155/withdraw`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -143,12 +143,14 @@ export default function ERC1155Deposit({ getSigner, dappAddress, fetch }: ERC115
             Token address: <input value={erc1155address} onChange={(e) => setErc1155Address(e.target.value)} />
             <button onClick={async () => {
                 const signer = await getSigner()
-                const res = await fetch(`http://127.0.0.1:8383/wallet/${await signer.getAddress()}/tokens`)
+                const res = await fetch(`http://127.0.0.1:8383/wallet/${await signer.getAddress()}`)
                 const wallet = await res.json()
                 const erc1155tokens = wallet.erc1155[erc1155address]
-                batch.forEach(item => {
-                    item.balanceL2 = erc1155tokens[`${item.tokenId}`]
-                })
+                if (erc1155tokens) {
+                    batch.forEach(item => {
+                        item.balanceL2 = erc1155tokens[`${item.tokenId}`]
+                    })
+                }
                 // setErc20balanceL2(json.balance)
                 // console.log(json)
                 loadBalances([...batch])
