@@ -29,6 +29,31 @@ export function RestExample({ getSigner, fetch }: RestExampleProps) {
                 const json = await res.json()
                 setBackendResponse(JSON.stringify(json, null, 4))
             }}>POST</button>
+            <button onClick={async () => {
+                const res = await fetch('http://127.0.0.1:8383/update', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ any: 'body' }),
+                    signer: await getSigner()
+                })
+                const json = await res.json()
+                setBackendResponse(JSON.stringify(json, null, 4))
+            }}>PUT</button>
+            <button onClick={async () => {
+                const res = await fetch('http://127.0.0.1:8383/delete?some=body', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ any: 'body' }),
+                    signer: await getSigner()
+                })
+                const json = await res.json()
+                setBackendResponse(JSON.stringify(json, null, 4))
+            }}>DELETE</button>
+            
             <div style={{ textAlign: 'left', paddingTop: '20px' }}>
                 Backend response: <pre>{backendResponse}</pre>
             </div>
