@@ -47,7 +47,6 @@ export function RestExample({ getSigner, fetch }: RestExampleProps) {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ any: 'body' }),
                     signer: await getSigner()
                 })
                 const json = await res.json()

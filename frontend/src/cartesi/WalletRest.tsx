@@ -39,13 +39,13 @@ export function WalletRest({ getSigner, fetch, dappAddress }: WalletRestProps) {
     }
 
     useEffect(() => {
-        loadErc1155balance()
+        loadErc721balance()
     }, [erc721address])
 
-    async function loadErc1155balance() {
+    async function loadErc721balance() {
         const signer = await getSigner()
         const contract = IERC721__factory.connect(erc721address, signer)
-        const balance = await contract.balanceOf(await signer.getAddress())
+        const balance = await contract.balanceOf(signer.address)
         setErc721balanceL1(balance.toString())
     }
 
@@ -117,7 +117,7 @@ export function WalletRest({ getSigner, fetch, dappAddress }: WalletRestProps) {
     async function withdrawErc20() {
         const signer = await getSigner()
         const signerAddress = await signer.getAddress()
-        const res = await fetch(`http://127.0.0.1:8383/wallet/${signerAddress}/erc-20/withdraw`, {
+        const res = await fetch(`http://127.0.0.1:8383/wallet/erc-20/withdraw`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -315,7 +315,7 @@ export function WalletRest({ getSigner, fetch, dappAddress }: WalletRestProps) {
                 const json = await res.json()
                 setErc721balanceL2(json.erc721[erc721address]?.length ?? '0')
                 setBackendResponse(JSON.stringify(json, null, 4))
-                loadErc1155balance()
+                loadErc721balance()
             }}>GET Balance</button><br />
             <input value={erc721id} onChange={(e) => {
                 setErc721id(e.target.value)
