@@ -2,6 +2,7 @@ import { FetchFun } from "@calindra/cartesify/src/cartesify/FetchLikeClient"
 import { ERC1155BatchPortal__factory, ERC1155SinglePortal__factory, IERC1155__factory } from "@cartesi/rollups"
 import { JsonRpcSigner } from "ethers"
 import { useEffect, useState } from "react"
+import { Button } from "../components/Button"
 
 type ERC1155DepositProps = {
     dappAddress: string
@@ -135,10 +136,10 @@ export default function ERC1155Deposit({ getSigner, dappAddress, fetch }: ERC115
             Token address: <input value={erc1155address} onChange={(e) => setErc1155Address(e.target.value)} /><br />
             Token ID: <input value={tokenId} onChange={(e) => setTokenId(e.target.value)} /><br />
             Value: <input value={value} onChange={(e) => setValue(+e.target.value)} /><br />
-            <button onClick={singleDeposit}>Deposit</button>
+            <Button onClick={singleDeposit}>Deposit</Button>
             <h3>Batch Deposit</h3>
             Token address: <input value={erc1155address} onChange={(e) => setErc1155Address(e.target.value)} />
-            <button onClick={async () => {
+            <Button onClick={async () => {
                 const signer = await getSigner()
                 const res = await fetch(`http://127.0.0.1:8383/wallet/${signer.address}`)
                 const wallet = await res.json()
@@ -151,7 +152,7 @@ export default function ERC1155Deposit({ getSigner, dappAddress, fetch }: ERC115
                 // setErc20balanceL2(json.balance)
                 // console.log(json)
                 loadBalances([...batch])
-            }}>GET Balance</button><br />
+            }}>GET Balance</Button><br />
             Batch size: <input value={batchSize} type="number" onChange={(e) => {
                 updateBatchSize(+e.target.value)
             }} /><br />
@@ -171,12 +172,12 @@ export default function ERC1155Deposit({ getSigner, dappAddress, fetch }: ERC115
                     </div>
                 )
             })}
-            <button onClick={batchDeposit}>Deposit</button>{" "}
-            <button onClick={batchWithdraw}>Voucher Withdraw</button><br />
+            <Button onClick={batchDeposit}>Deposit</Button>{" "}
+            <Button onClick={batchWithdraw}>Voucher Withdraw</Button><br />
             <input value={toAddress} onChange={(e) => {
                 setToAddress(e.target.value)
             }} />
-            <button onClick={transferErc1155}>L2 Transfer</button>
+            <Button onClick={transferErc1155}>L2 Transfer</Button>
         </div>
     )
 }

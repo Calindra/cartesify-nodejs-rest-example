@@ -1,4 +1,4 @@
-
+import { Button } from "../components/Button";
 
 
 async function sendRPCCommand(method: string, params: any[]) {
@@ -33,9 +33,9 @@ export function Epoch() {
             <p>Advance the epoch by running this command on terminal:</p>
             <pre>ETH_RPC_URL=http://localhost:8545 cast rpc evm_increaseTime 5184000</pre>
             <p>Or click
-                <button onClick={() => {
+                <Button onClick={() => {
                     sendRPCCommand('evm_increaseTime', [5184000]);
-                }}>Increase Time</button>
+                }}>Increase Time</Button>
             </p>
         </div>
     )

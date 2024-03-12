@@ -1,6 +1,7 @@
 import { FetchFun } from "@calindra/cartesify/src/cartesify/FetchLikeClient"
 import { Signer } from "ethers"
 import { useState } from "react"
+import { Button } from "../components/Button"
 
 type RestExampleProps = {
     fetch: FetchFun
@@ -12,12 +13,12 @@ export function RestExample({ getSigner, fetch }: RestExampleProps) {
     return (
         <div style={{ textAlign: 'left' }}>
             <h2>REST Example</h2>
-            <button onClick={async () => {
+            <Button onClick={async () => {
                 const res = await fetch('http://127.0.0.1:8383/health')
                 const json = await res.json()
                 setBackendResponse(JSON.stringify(json, null, 4))
-            }}>GET</button>
-            <button onClick={async () => {
+            }}>GET</Button>
+            <Button onClick={async () => {
                 const res = await fetch('http://127.0.0.1:8383/new-game', {
                     method: 'POST',
                     headers: {
@@ -28,8 +29,8 @@ export function RestExample({ getSigner, fetch }: RestExampleProps) {
                 })
                 const json = await res.json()
                 setBackendResponse(JSON.stringify(json, null, 4))
-            }}>POST</button>
-            <button onClick={async () => {
+            }}>POST</Button>
+            <Button onClick={async () => {
                 const res = await fetch('http://127.0.0.1:8383/update', {
                     method: 'PUT',
                     headers: {
@@ -40,8 +41,8 @@ export function RestExample({ getSigner, fetch }: RestExampleProps) {
                 })
                 const json = await res.json()
                 setBackendResponse(JSON.stringify(json, null, 4))
-            }}>PUT</button>
-            <button onClick={async () => {
+            }}>PUT</Button>
+            <Button onClick={async () => {
                 const res = await fetch('http://127.0.0.1:8383/delete?some=body', {
                     method: 'DELETE',
                     headers: {
@@ -51,7 +52,7 @@ export function RestExample({ getSigner, fetch }: RestExampleProps) {
                 })
                 const json = await res.json()
                 setBackendResponse(JSON.stringify(json, null, 4))
-            }}>DELETE</button>
+            }}>DELETE</Button>
             
             <div style={{ textAlign: 'left', paddingTop: '20px' }}>
                 Backend response: <pre>{backendResponse}</pre>

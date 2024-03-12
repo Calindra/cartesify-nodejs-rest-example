@@ -4,6 +4,7 @@ import { Signer } from "ethers"
 import { useEffect, useState } from "react"
 import { Voucher } from "./model/Voucher"
 import { VoucherService } from "./services/VoucherService"
+import { Button } from "../components/Button"
 
 type VoucherViewProps = {
     dappAddress: string
@@ -63,7 +64,7 @@ export default function VoucherView({ getSigner, dappAddress }: VoucherViewProps
         <div style={{ textAlign: 'left' }}>
             <h2>Vouchers</h2>
             <p>The voucher needs the epoch to end before it is ready to be executed.</p>
-            <button onClick={loadVouchers}>Load Vouchers</button>
+            <Button onClick={loadVouchers}>Load Vouchers</Button>
             <div style={{ paddingTop: '10px' }}>
                 {!!vouchers ? (
                     <div>
@@ -90,9 +91,9 @@ function VoucherERC1155({ voucher, executeVoucher }: { voucher: Voucher, execute
         <>
             {voucher.destination}
             {hasProof ? (
-                <button onClick={async () => {
+                <Button onClick={async () => {
                     await executeVoucher(voucher)
-                }}>Execute</button>
+                }}>Execute</Button>
             ) : (
                 <span> waiting for proof </span>
             )}
