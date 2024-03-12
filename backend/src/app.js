@@ -72,7 +72,7 @@ app.post("/wallet/ether/transfer", async (req, res) => {
 
 app.post("/wallet/ether/withdraw", async (req, res) => {
     try {
-        const voucher = wallet.withdrawEther(
+        const voucher = await wallet.withdrawEther(
             req.get('x-msg_sender'),
             BigInt(req.body.amount)
         )
@@ -88,7 +88,7 @@ app.post("/wallet/ether/withdraw", async (req, res) => {
 
 app.post("/wallet/erc-20/withdraw", async (req, res) => {
     try {
-        const voucher = wallet.withdrawERC20(
+        const voucher = await wallet.withdrawERC20(
             req.body.token,
             req.get('x-msg_sender'),
             BigInt(req.body.amount)
@@ -165,7 +165,7 @@ app.post("/wallet/erc-1155/transfer", async (req, res) => {
 
 app.post("/wallet/erc-721/withdraw", async (req, res) => {
     try {
-        const voucher = wallet.withdrawERC721(
+        const voucher = await wallet.withdrawERC721(
             req.body.token,
             req.get('x-msg_sender'),
             BigInt(req.body.tokenId)
@@ -182,7 +182,7 @@ app.post("/wallet/erc-721/withdraw", async (req, res) => {
 
 app.post("/wallet/erc-1155/withdraw", async (req, res) => {
     try {
-        const voucher = wallet.withdrawERC1155(
+        const voucher = await wallet.withdrawERC1155(
             req.body.token,
             req.get('x-msg_sender'),
 
