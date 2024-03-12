@@ -1,11 +1,11 @@
 import { FetchFun } from "@calindra/cartesify/src/cartesify/FetchLikeClient"
 import { ERC1155BatchPortal__factory, ERC1155SinglePortal__factory, IERC1155__factory } from "@cartesi/rollups"
-import { Signer } from "ethers"
+import { JsonRpcSigner } from "ethers"
 import { useEffect, useState } from "react"
 
 type ERC1155DepositProps = {
     dappAddress: string
-    getSigner: () => Promise<Signer>
+    getSigner: () => Promise<JsonRpcSigner>
     fetch: FetchFun
 }
 
@@ -39,7 +39,6 @@ export default function ERC1155Deposit({ getSigner, dappAddress, fetch }: ERC115
     async function batchDeposit() {
         const signer = await getSigner()
         // you could check this address by executing `sunodo run --verbose`
-        // const userAddress = await signer.getAddress()
         const portalAddress = '0xedB53860A6B52bbb7561Ad596416ee9965B055Aa'
         const contract = IERC1155__factory.connect(erc1155address, signer)
         const approve = await contract.setApprovalForAll(portalAddress, true)
@@ -76,7 +75,6 @@ export default function ERC1155Deposit({ getSigner, dappAddress, fetch }: ERC115
 
     async function batchWithdraw() {
         const signer = await getSigner()
-        const signerAddress = await signer.getAddress()
         const res = await fetch(`http://127.0.0.1:8383/wallet/erc-1155/withdraw`, {
             method: 'POST',
             headers: {
@@ -84,11 +82,10 @@ export default function ERC1155Deposit({ getSigner, dappAddress, fetch }: ERC115
             },
             body: JSON.stringify({
                 token: erc1155address,
-                address: signerAddress,
                 tokenIds: batch.map(item => +item.tokenId),
                 values: batch.map(item => item.value)
             }),
-            signer: await getSigner()
+            signer,
         })
         if (!res.ok) {
             console.log(res.status, res.text())
@@ -143,7 +140,7 @@ export default function ERC1155Deposit({ getSigner, dappAddress, fetch }: ERC115
             Token address: <input value={erc1155address} onChange={(e) => setErc1155Address(e.target.value)} />
             <button onClick={async () => {
                 const signer = await getSigner()
-                const res = await fetch(`http://127.0.0.1:8383/wallet/${await signer.getAddress()}`)
+                const res = await fetch(`http://127.0.0.1:8383/wallet/${signer.address}`)
                 const wallet = await res.json()
                 const erc1155tokens = wallet.erc1155[erc1155address]
                 if (erc1155tokens) {

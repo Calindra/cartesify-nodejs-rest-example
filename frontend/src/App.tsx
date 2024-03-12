@@ -1,5 +1,3 @@
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import { Cartesify } from "@calindra/cartesify";
 import { BrowserProvider } from 'ethers';
@@ -62,9 +60,6 @@ function App() {
         <VoucherView fetch={fetch} dappAddress={DAPP_ADDRESS} getSigner={getSigner} />
         <Epoch />
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
