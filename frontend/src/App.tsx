@@ -1,5 +1,3 @@
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import { Cartesify } from "@calindra/cartesify";
 import { BrowserProvider } from 'ethers';
@@ -7,6 +5,7 @@ import ERC1155Deposit from './cartesi/ERC1155Deposit';
 import { RestExample } from './cartesi/RestExample';
 import { WalletRest } from './cartesi/WalletRest';
 import VoucherView from './cartesi/VoucherView';
+import { Epoch } from './cartesi/Epoch';
 
 type EthereumFromWindow = import("ethers").Eip1193Provider & import("ethers").AbstractProvider;
 declare global {
@@ -51,23 +50,16 @@ function App() {
   return (
     <>
       <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        
       </div>
-      <h1>Vite + React</h1>
+      <h1>Cartesi Playground</h1>
       <div className="card">
         <RestExample fetch={fetch} getSigner={getSigner} />
         <WalletRest fetch={fetch} dappAddress={DAPP_ADDRESS} getSigner={getSigner} />
         <ERC1155Deposit fetch={fetch} dappAddress={DAPP_ADDRESS} getSigner={getSigner} />
         <VoucherView fetch={fetch} dappAddress={DAPP_ADDRESS} getSigner={getSigner} />
+        <Epoch />
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
