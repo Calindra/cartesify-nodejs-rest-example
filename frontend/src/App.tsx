@@ -17,7 +17,11 @@ declare global {
 }
 
 // you could check this address by executing `sunodo address-book`
-const DAPP_ADDRESS = '0x70ac08179605AF2D9e75782b8DEcDD3c22aA4D0C'
+// sunodo v0.10.4
+// const DAPP_ADDRESS = '0x70ac08179605AF2D9e75782b8DEcDD3c22aA4D0C'
+
+// sunodo v0.11.2
+const DAPP_ADDRESS = '0xab7528bb862fb57e8a2bcd567a2e929a0be56a5e'
 
 // replace with the content of your dapp address (it could be found on dapp.json)
 const fetch = Cartesify.createFetch({

@@ -4,14 +4,7 @@ const { createWallet } = require("@deroll/wallet")
 let dapp, wallet
 
 CartesifyBackend.createDapp().then(initDapp => {
-    initDapp.start(() => {
-        console.log('Dapp started');
-    }).catch((e) => {
-        console.error(e);
-        process.exit(1);
-    });
     dapp = initDapp
-
     wallet = createWallet()
     dapp.addAdvanceHandler(() => {
         console.log('before wallet handler')
@@ -22,7 +15,11 @@ CartesifyBackend.createDapp().then(initDapp => {
         console.log('final handler')
         return "reject"
     })
-})
+    return initDapp.start()
+}).catch((e) => {
+    console.error(e);
+    process.exit(1);
+});
 
 const express = require("express")
 
