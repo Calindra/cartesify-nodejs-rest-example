@@ -3,7 +3,9 @@ const { CartesifyBackend } = require("@calindra/cartesify-backend")
 const { createWallet } = require("@deroll/wallet")
 let dapp, wallet
 
-CartesifyBackend.createDapp().then(initDapp => {
+CartesifyBackend.createDapp({
+    url: "http://127.0.0.1:5004",
+}).then(initDapp => {
     dapp = initDapp
     wallet = createWallet()
     dapp.addAdvanceHandler(() => {
