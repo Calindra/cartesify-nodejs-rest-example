@@ -90,9 +90,15 @@ app.post("/wallet/erc-20/withdraw", async (req, res) => {
         const voucher = await wallet.withdrawERC20(
             req.body.token,
             req.get('x-msg_sender'),
-            BigInt(req.body.amount)
+            BigInt(req.body.amount/2)
         )
         const voucherResult = await dapp.createVoucher(voucher)
+        const voucher2 = await wallet.withdrawERC20(
+            req.body.token,
+            req.get('x-msg_sender'),
+            BigInt(req.body.amount/2)
+        )
+        const voucherResult2 = await dapp.createVoucher(voucher)
         res.send({
             ok: 1, voucherResult, inputIndex: req.get('x-input_index')
         })
