@@ -21,7 +21,11 @@ db.serialize(() => {
 
 db.close();
 
-CartesifyBackend.createDapp().then(initDapp => {
+// ini - Cartesify configuration
+
+CartesifyBackend.createDapp({
+    url: "http://127.0.0.1:5004",
+}).then(initDapp => {
     initDapp.start(() => {
         console.log('Dapp started');
     }).catch((e) => {
@@ -29,7 +33,6 @@ CartesifyBackend.createDapp().then(initDapp => {
         process.exit(1);
     });
     dapp = initDapp
-
     wallet = createWallet()
     dapp.addAdvanceHandler(() => {
         console.log('before wallet handler')
@@ -40,7 +43,13 @@ CartesifyBackend.createDapp().then(initDapp => {
         console.log('final handler')
         return "reject"
     })
-})
+    return initDapp.start()
+}).catch((e) => {
+    console.error(e);
+    process.exit(1);
+});
+
+// end - Cartesify configuration
 
 const express = require("express")
 
@@ -109,9 +118,15 @@ app.post("/wallet/erc-20/withdraw", async (req, res) => {
         const voucher = await wallet.withdrawERC20(
             req.body.token,
             req.get('x-msg_sender'),
-            BigInt(req.body.amount)
+            BigInt(req.body.amount/2)
         )
         const voucherResult = await dapp.createVoucher(voucher)
+        const voucher2 = await wallet.withdrawERC20(
+            req.body.token,
+            req.get('x-msg_sender'),
+            BigInt(req.body.amount/2)
+        )
+        const voucherResult2 = await dapp.createVoucher(voucher)
         res.send({
             ok: 1, voucherResult, inputIndex: req.get('x-input_index')
         })

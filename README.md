@@ -2,7 +2,19 @@
 
 ## Backend
 
+Go to the backend folder
+
+```shell
+cd backend
+```
+
 ### With Nonodo
+
+Install nonodo
+
+```shell
+npm i -g nonodo
+```
 
 Start nonodo
 
@@ -16,12 +28,12 @@ Start the backend
 node src/app.js
 ```
 
-### With Sunodo
+### With Cartesi CLI
 
 Build:
 
 ```shell
-sunodo build
+cartesi build
 ```
 
 Success output:
@@ -65,7 +77,13 @@ Storing machine: please wait
 
 ## Frontend
 
-Start the frontend:
+Go to the frontend folder
+
+```shell
+cd frontend
+```
+
+Start the frontend
 
 ```shell
 npm run dev
@@ -82,7 +100,7 @@ ETH_RPC_URL=http://localhost:8545 cast rpc evm_increaseTime 2592000
 Run the command:
 
 ```shell
-sunodo address-book
+nonodo address-book
 ```
 
 Output:

@@ -89,7 +89,9 @@ function VoucherERC1155({ voucher, executeVoucher }: { voucher: Voucher, execute
     const hasProof = !!voucher.proof?.validity
     return (
         <>
-            {voucher.destination}
+            {voucher.destination}{" "}
+            OutputIndex: {voucher.index}{" "}
+            InputIndex: {voucher.input.index}{" "}
             {hasProof ? (
                 <Button onClick={async () => {
                     await executeVoucher(voucher)
