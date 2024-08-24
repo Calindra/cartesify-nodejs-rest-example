@@ -56,7 +56,7 @@ function App() {
       <div>
         
       </div>
-      <h1>Cartesi Playground</h1>
+      <h1>Cartesify Playground</h1>
       <div className="card">
         <RestExample fetch={fetch} getSigner={getSigner} />
         <WalletRest fetch={fetch} dappAddress={DAPP_ADDRESS} getSigner={getSigner} />

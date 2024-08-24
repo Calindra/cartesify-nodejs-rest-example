@@ -30,6 +30,7 @@ export function Epoch() {
     return (
         <div style={{ textAlign: 'left' }}>
             <h2>Epoch</h2>
+            <p>W4RniNg: NONODO CAN'T EXECUTE VOUCHERS</p>
             <p>Advance the epoch by running this command on terminal:</p>
             <pre>ETH_RPC_URL=http://localhost:8545 cast rpc evm_increaseTime 5184000</pre>
             <p>Or click
